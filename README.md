@@ -1,1 +1,1 @@
-# Global-Instability-Analysis
+# Global Instability Analysis
