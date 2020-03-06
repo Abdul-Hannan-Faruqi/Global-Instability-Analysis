@@ -69,7 +69,7 @@ class SIM:
         
     def Calculate(self, a):
         F= open("Eigen.txt",'w')
-        err = 1
+        err = 1 #Error
         eig = 0
         iter = 0
         start_time = time.process_time()
