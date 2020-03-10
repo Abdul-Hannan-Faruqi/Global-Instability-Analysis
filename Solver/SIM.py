@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Mon Oct 28 13:41:56 2019
@@ -14,9 +13,9 @@ from Random_Orthogonal import OrthVec
 import time
 
 class Mat_Gen:
-    def __init__(self, n):
+    def __init__(self, n, t):
         self.n = n
-        self.a = np.zeros((self.n, self.n))
+        self.a = np.zeros((self.n, self.n))        
 
     def Symmetric(self, max):
         for i in range(self.n):
@@ -40,15 +39,14 @@ class Mat_Gen:
         return self.a
     
 class SIM:
-    def __init__(self, n,m):
+    def __init__(self, n, m):
         self.n = n
         self.m = m
-        
+        dsum = 0
         self.B= np.eye(self.n)
-        Matrix = Mat_Gen(self.n)
-        a = Matrix.Symmetric(10)
-#        a = Matrix.Diagonal(10)
-#        a = Matrix.Random(10)
+        a = np.load("Matrices\M.npy")
+        m = np.load("Matrices\A.npy")
+#        Matrix = Mat_Gen(self.n, t)
 #        a = np.array([[1,2,3],[0,4,5],[0,0,1]])
 #        a= 100*np.random.rand(self.n, self.n)
 #        a = np.array([[1,4,3,5],[4,3,5,6],[3,5,4,8],[5,6,8,9]])
@@ -58,51 +56,48 @@ class SIM:
 #        a = np.array([[4/5,-3/5,0],[3/5,4/5,0],[1,2,2]])
 #        a = np.array([[2,np.sqrt(2),4],[np.sqrt(2),6,np.sqrt(2)],[4,np.sqrt(2),2]])
 #        a = np.array([[1,2,2],[0,2,1],[-1,2,2]], dtype = 'complex')
-        self.a = a
         print (a)
-        np.save("A", self.a)
+        k = np.linalg.inv(a)@m
+        self.k = k
+        np.save("Matrices\K.npy", self.k)
         SV = OrthVec(self.n,self.m)
         SV.Calc()
         R = list(SV.vt)
         self.R = np.array(R, dtype= 'complex')
-        self.Calculate(a)
+        self.Calculate(k)
         
-    def Calculate(self, a):
-        F= open("Eigen.txt",'w')
-        err = 1 #Error
+    def Calculate(self, k):
+        F= open("Solution\Eigen.txt",'w')
+        err = 1
         eig = 0
         iter = 0
+        anew = np.zeros((self.m, self.m))
         start_time = time.process_time()
-        while (err> 1e-4):
-            Th = np.linalg.solve(a,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
-#            Th = np.matmul(a, self.R)  #for largest eigenvalues
-#            Th = Th/max(np.ravel(Th))
+        while (err > 1e-4):
+#            Th = np.linalg.solve(k,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
+            Th = k@self.R  #for largest eigenvalues
             Th = Th/ max(np.ravel(Th))
             Th, r = np.linalg.qr(Th)
-            Tht = np.transpose(Th)
-            Ax = np.matmul(Tht, a)  # Reorientation
-            Ax = np.matmul(Ax,Th)
-#            Bx = np.matmul(Tht,self.B)
-#            Bx = np.matmul(Bx,Th)
-            y = np.linalg.eig(Ax)       # Calculation of eigenvalues and eigenvectors
-            y= list(y)
-            self.phi = y.pop(1)
+            Ax = Th.T@k@Th
+            y, self.phi = np.linalg.eig(Ax)       # Calculation of eigenvalues and eigenvectors
 #            if iter%1 == 0:
 #                self.Plot(iter)               
             self.R = np.matmul(Th, self.phi)    #Eigenvector
             self.y = np.ravel(y)                #Eigenvalues
-#            for i in range(self.m):
-#                print(str(self.y))
-#                print(',')
-#            print("\n")
-            err1 = max(abs(a@self.R[:,1])-(self.y[1]*self.R[:,1]))
+            F.write(str(self.y))
+            F.write("\n")            
+            err1 = max(abs(k@self.R[:,1])-(self.y[1]*self.R[:,1]))
             err2 = max(abs(eig-self.y))
-#           self.Multigrid(Ax,y)
             err = min(err1, err2)
+            if (iter == 100):
+                self.Complex_Shift()
             eig = self.y
             iter += 1 
-        print("Execution Time = ", (time.process_time()-start_time))              
+        print("Execution Time = ", (time.process_time()-start_time), "s")   
+        self.y = self.y + self.shift         
         print(self.y)
+        print("shift = ", self.shift)
+        np.save("Solution\R.npy", self.R)
         print("\nIter = ", iter)
         F.close()
         
@@ -114,7 +109,11 @@ class SIM:
                     b[i][j]= Ax[i][j]
                 else:
                     b[i][j] = Ax[i][j]-self.y[0]
-#        print("b=", b)
+        print("b=", b)
+
+    def Complex_Shift(self):
+        self.shift = min(self.y)
+        self.k = self.k - self.shift*(np.eye(self.n))
                    
     def Plot(self, iter):
         plv = np.ndarray(shape = (3,6)) 
@@ -139,4 +138,6 @@ class SIM:
         plt.close()
 
 if __name__ == '__main__':
-    Test = SIM(10000, 5)    # (dimension of matrix, dimension of sub-space)
+    n = input("Enter the dimension of matrix (n): ")
+    m = input("Enter the dimension of subspace (m): ")
+    Test = SIM(int(n), int(m))    # (dimension of matrix, dimension of sub-space)
