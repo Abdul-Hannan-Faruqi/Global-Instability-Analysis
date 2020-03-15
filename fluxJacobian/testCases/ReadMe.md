@@ -1,4 +1,4 @@
-Test case matrices for eigenvalue solver:
+Test case matrices to be run in the eigenvalue solver:
 
 M.txt is:
 
