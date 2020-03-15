@@ -43,9 +43,8 @@ class SIM:
         self.n = n
         self.m = m
         dsum = 0
-        self.B= np.eye(self.n)
-        a = np.load("Matrices\M.npy")
-        m = np.load("Matrices\A.npy")
+        self.a = np.load("M.npy")
+        self.b = np.load("A.npy")
 #        Matrix = Mat_Gen(self.n, t)
 #        a = np.array([[1,2,3],[0,4,5],[0,0,1]])
 #        a= 100*np.random.rand(self.n, self.n)
@@ -56,48 +55,51 @@ class SIM:
 #        a = np.array([[4/5,-3/5,0],[3/5,4/5,0],[1,2,2]])
 #        a = np.array([[2,np.sqrt(2),4],[np.sqrt(2),6,np.sqrt(2)],[4,np.sqrt(2),2]])
 #        a = np.array([[1,2,2],[0,2,1],[-1,2,2]], dtype = 'complex')
-        print (a)
-        k = np.linalg.inv(a)@m
-        self.k = k
-        np.save("Matrices\K.npy", self.k)
+        print (self.a)
         SV = OrthVec(self.n,self.m)
         SV.Calc()
         R = list(SV.vt)
         self.R = np.array(R, dtype= 'complex')
-        self.Calculate(k)
+        a = self.a
+        b = self.b
+        self.Calculate(a, b)
         
-    def Calculate(self, k):
-        F= open("Solution\Eigen.txt",'w')
+    def Calculate(self, a, b):
+        F= open("Eigen.txt",'w')
         err = 1
         eig = 0
         iter = 0
         anew = np.zeros((self.m, self.m))
         start_time = time.process_time()
         while (err > 1e-4):
-#            Th = np.linalg.solve(k,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
-            Th = k@self.R  #for largest eigenvalues
-            Th = Th/ max(np.ravel(Th))
+#            Th = np.linalg.solve(a,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
+            Th = a@self.R  #for largest eigenvalues
+            Th = Th/np.linalg.norm(Th)
             Th, r = np.linalg.qr(Th)
-            Ax = Th.T@k@Th
-            y, self.phi = np.linalg.eig(Ax)       # Calculation of eigenvalues and eigenvectors
+            Ax = Th.T@a@Th
+            Bx = Th.T@b@Th
+            C = np.linalg.inv(Bx)@Ax
+            y, self.phi = np.linalg.eig(C)       # Calculation of eigenvalues and eigenvectors
 #            if iter%1 == 0:
 #                self.Plot(iter)               
-            self.R = np.matmul(Th, self.phi)    #Eigenvector
+            self.R = Th@self.phi
+            self.R = b@self.R                   #Eigenvector
             self.y = np.ravel(y)                #Eigenvalues
             F.write(str(self.y))
             F.write("\n")            
-            err1 = max(abs(k@self.R[:,1])-(self.y[1]*self.R[:,1]))
+            err1 = max(abs(a@self.R[:,1])-(self.y[1]*self.R[:,1]))
             err2 = max(abs(eig-self.y))
             err = min(err1, err2)
             if (iter == 100):
-                self.Complex_Shift()
+                a = self.Complex_Shift(a)
             eig = self.y
             iter += 1 
-        print("Execution Time = ", (time.process_time()-start_time), "s")   
+        print("Execution Time = ", (time.process_time()-start_time))   
         self.y = self.y + self.shift         
         print(self.y)
         print("shift = ", self.shift)
-        np.save("Solution\R.npy", self.R)
+        np.save("R.npy", self.R)
+        np.save("eig.npy", self.y)
         print("\nIter = ", iter)
         F.close()
         
@@ -111,9 +113,10 @@ class SIM:
                     b[i][j] = Ax[i][j]-self.y[0]
         print("b=", b)
 
-    def Complex_Shift(self):
+    def Complex_Shift(self, a):
         self.shift = min(self.y)
-        self.k = self.k - self.shift*(np.eye(self.n))
+        a = a - self.shift*(np.eye(self.n))
+        return(a)
                    
     def Plot(self, iter):
         plv = np.ndarray(shape = (3,6)) 
