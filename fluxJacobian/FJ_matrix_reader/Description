@@ -1,0 +1,7 @@
+Program to read the flux jacobian matrix when given in csv format and obtain the flux jacobian as M in python
+
+
+The file FJ_matrix.csv should be in the working folder
+
+
+Enter the size of the matrix (number of elements in one row or column) when asked at run time
