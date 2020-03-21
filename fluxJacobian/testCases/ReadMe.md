@@ -1,6 +1,6 @@
 Test case matrices to be run in the eigenvalue solver:
 
-M.txt is:
+M.txt/FJ_matrix.csv is:
 
 
 Output of fluxJacobian program
