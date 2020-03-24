@@ -7,7 +7,7 @@
 
 The sign of the eigenvalues pf this matrix dictates whether the corresponding disturbance vector grows or dies with time.
 
-The solver developed for this purpose (SIM.py) finds the specified number of the rightmost eigenvalues of the input matrix. If all eigenvalues lie in the left half-plane (are negative), the flow is considered to be globally stable. However, if even a single eigenvalue is positive, the flow shows instability in that mode (i.e. when perturbed with the corresponding disturbance vector - *eigenvector*).
+The solver developed for this purpose [SIM.py](https://github.com/Abdul-Hannan-Faruqi/Global-Instability-Analysis/tree/master/Solver) finds the specified number of the rightmost eigenvalues of the input matrix. If all eigenvalues lie in the left half-plane (are negative), the flow is considered to be globally stable. However, if even a single eigenvalue is positive, the flow shows instability in that mode (i.e. when perturbed with the corresponding disturbance vector - *eigenvector*).
 
 ## Test Cases
 1. Lid-driven cavity (LDC) flow: This is a benchmark problem in CFD and it has been used to validate the solver. The flow is stable below a Reynolds no. (Re) ~ 8000 and turns unstable above that. This has been confirmed using the two cases, Re = 100 and Re = 10,000.
