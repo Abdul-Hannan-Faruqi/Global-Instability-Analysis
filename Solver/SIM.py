@@ -9,7 +9,7 @@ from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.linalg as sla
-from Random_Orthogonal import OrthVec
+from OrthVec_Gen.Random_Orthogonal import OrthVec
 import time
 
 class Mat_Gen:
@@ -43,8 +43,8 @@ class SIM:
         self.n = n
         self.m = m
         dsum = 0
-        self.a = np.load("M.npy")
-        self.b = np.load("A.npy")
+        self.a = np.load("D:\\Hannan\\Final Year Project\\Solver Repository\\Global-Instability-Analysis\\fluxJacobian\\FJ_matrix_reader\\M.npy")
+        self.b = np.load("Matrices\\A.npy")
 #        Matrix = Mat_Gen(self.n, t)
 #        a = np.array([[1,2,3],[0,4,5],[0,0,1]])
 #        a= 100*np.random.rand(self.n, self.n)
