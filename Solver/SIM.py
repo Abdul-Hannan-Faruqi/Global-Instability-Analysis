@@ -43,7 +43,7 @@ class SIM:
         self.n = n
         self.m = m
         dsum = 0
-        self.a = np.load("D:\\Hannan\\Final Year Project\\Solver Repository\\Global-Instability-Analysis\\fluxJacobian\\FJ_matrix_reader\\M.npy")
+        self.a = np.load("Matrices\\M.npy")
         self.b = np.load("Matrices\\A.npy")
 #        Matrix = Mat_Gen(self.n, t)
 #        a = np.array([[1,2,3],[0,4,5],[0,0,1]])
