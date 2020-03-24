@@ -2,7 +2,7 @@
 
 **Global Instability Analysis** is a powerful tool for predicting the stability of a given state of flow with respect to external perturbations. It has been successful in predicting several flow phenomena, including boundary layer transition. For the purpose of this analysis, the rate of growth of the disturbance is expressed as a function of the existing perturbed state (through Jacobian of Navier Stokes equations). This allows the formulation of an eigenvalue problem, wherein the eigenvalues of the *Flux Jacobian* are calculated. 
 
-![Equation for instability analysis](/Eq2.JPG =350x)
+![Equation for instability analysis](/Eq2.JPG =370x115)
 
 The sign of the eigenvalues pf this matrix dictates whether the corresponding disturbance vector grows or dies with time.
 
