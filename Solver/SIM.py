@@ -8,7 +8,6 @@ Created on Mon Oct 28 13:41:56 2019
 from mpl_toolkits import mplot3d
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.linalg as sla
 from OrthVec_Gen.Random_Orthogonal import OrthVec
 import time
 
