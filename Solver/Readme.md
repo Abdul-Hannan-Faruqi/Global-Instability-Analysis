@@ -5,8 +5,8 @@ The Subspace Iteration method generates a subspace of the original matrix space 
 
 ## Usage:
 **SIM (n,m)**
-1. Save the *M* and *A* matrices (as numoy arrays) in the Matrices folder.
-2. Run `python SIM.py'
+1. Save the *M* and *A* matrices (as numpy arrays) in the Matrices folder.
+2. Run `python SIM.py`
 3. Enter the inputs on the prompt
 >dimension of matrix    ->  n
 >
