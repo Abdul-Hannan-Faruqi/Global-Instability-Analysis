@@ -98,21 +98,11 @@ class SIM:
         self.y = self.y + self.shift         
         print(self.y)
         print("shift = ", self.shift)
-        np.save("R.npy", self.R)
-        np.save("eig.npy", self.y)
+        np.save("Solution\\R.npy", self.R)
+        np.save("Solution\\eig.npy", self.y)
         print("\nIter = ", iter)
         F.close()
         
-    def Multigrid(self, Ax,y):
-        b = np.ndarray(shape=(self.m, self.m), dtype= 'complex')
-        for i in range(self.m):
-            for j in range(self.m):
-                if i!=j:
-                    b[i][j]= Ax[i][j]
-                else:
-                    b[i][j] = Ax[i][j]-self.y[0]
-        print("b=", b)
-
     def Complex_Shift(self, a):
         self.shift = min(self.y)
         a = a - self.shift*(np.eye(self.n))
