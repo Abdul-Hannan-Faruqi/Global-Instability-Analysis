@@ -1,3 +1,5 @@
 Matrix size = 30000x30000
 Re = 10000
-Non uniform grid with non-dimensioanl dx at walls = 1e-4
+Grid size  = 100x100
+Grid type = Non uniform
+Non-dimensioanl dx at walls = 1e-4
