@@ -1,0 +1,5 @@
+Matrix size = 19200
+Re = 10000
+Grid size = 80x80
+Grid type = non uniform
+Non dimensional dx at walls = 1e-4

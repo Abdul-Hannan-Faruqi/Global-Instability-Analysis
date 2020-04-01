@@ -1,0 +1,5 @@
+Matrix Size  = 10800
+Re = 10000
+Grid size = 60x60
+Grid type = non uniform
+Non dimensional dx = 1e-4
