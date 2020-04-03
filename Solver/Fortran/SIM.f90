@@ -1,32 +1,38 @@
 ! Author: Abdul Hannan Faruqi
 ! Last modified: Apr 01, 2020 20:22
 
-module data
+module data_mod
     implicit none
     SAVE
-    complex*16 :: alpha = 1.0, beta = 0.0
-    integer:: n=3, m=2
+    complex*16 :: alpha = (1.0,0.0), beta = (0.0,0.0)
+    integer:: n, m=20
+    complex*16::shift_par
 end module
 
-Program Subspace Iteration
-
-USE data
+Program Eigenvalue
+USE data_mod
 implicit none
-integer::i, j, K, ok, row, col, iter, ierr
+integer::i, j, K, ok, row, col, iter, ierr, x
 character(len=50):: e_str, filename
 complex*16, dimension(:,:), allocatable:: A, B, Th, evec, R, Ax, Bx, C, Phi
 complex*16, dimension(:), allocatable:: eval, WORK1, work2, eigs, tau
 double precision, dimension(:), allocatable:: w, w2
 integer, dimension(:), allocatable::IPIV
+integer, dimension(:,:), allocatable::eye
 complex*16 DUMMY(1,1)
-real :: v, tol= 0.00000001, e = 1.0
-real:: zlange, Th_norm
+real(8) :: val, tol= 0.00000001, e = 1.0
+double precision:: Th_norm, zlange
+real::sqrt, start_time, stop_time
 
-!filename = 'M.dat'
-!open(unit=100, file=filename, status = 'old', action = 'read', iostat = ierr, iomsg = e_str)
-!print *, e_str
-!read(100, *) x
-
+filename = 'M.dat'
+open(unit=100, file=filename, status = 'old', action = 'read', iostat = ierr, iomsg = e_str)
+if (ierr.eq.0) then
+    print *, "File opened successfully"
+else
+    print *, "Error!"
+endif
+read(100, *) n
+print *, n
 
 allocate(A(n,n))
 allocate(B(n,n))
@@ -45,8 +51,21 @@ allocate(tau(m))
 allocate(IPIV(m))
 allocate(evec(m,m))
 allocate(Phi(n,m))
+allocate(eye(n,n))
 
 eigs=0.0
+eye = 0.0
+do i=1,n
+    eye(i,i)=1
+end do
+
+do
+    read(100,*, iostat = ierr) row, col, val
+    if (ierr.ne.0)    exit
+    A(row+1,col+1) = val
+enddo
+close(100)
+print *, "File closed"
 
 do i=1,n
     do j=1, m
@@ -58,17 +77,6 @@ do i=1,n
     end do
 end do
 
-do i=1,n
-    do j=1,i
-        A(i,j) = AINT(100*rand(0))
-        A(j,i) = A(i,j)
-    end do
-end do
-
-print *, "A = "
-do i=1,n
-    print *, A(i,:)
-end do
 
 do i=1,n
     do j = 1,n
@@ -81,6 +89,7 @@ do i=1,n
 end do
 
 iter = 0
+call cpu_time(start_time)
 do
     iter = iter+1
 !   Multiplication
@@ -105,26 +114,32 @@ do
     call zgemm('N', 'N', n, m, n, alpha, B, n, Phi, n, beta, R, n)
     e = abs(maxval(real(eval)-real(eigs)))
     eigs = eval
+    if (iter.eq.50) then
+        shift_par = minval(real(eigs))
+        A = A - shift_par*eye
+    end if
     if ((e.lt.tol)) then
         exit
     end if
 end do
-print *, "error = ", e
+call cpu_time(stop_time)
+   
+print *, "Execution time= ", stop_time - start_time, "s"
+
 print *, "Iterations = ", iter
-print *, "Eigenvalues = ", eval
-print *, "Eigenvectors = "
-do i=1,n
-    print *, R(i,:)
-end do
-!
-!close(100)
+print *, "error = ", e
+print *, "Shift = ", shift_par
+eigs = eigs + shift_par
+print *, "Eigenvalues = ", eigs
+
 end program
 
-subroutine Project(Mat, Th, Ax)
-    USE data
+subroutine Project(Mat, Th, Mat_x)
+    USE data_mod
     implicit none
-    complex*16 Mat(n,n), Th(n,m), Ax(m,m), Int_arr(m,n)
+    integer::i
+    complex*16 Mat(n,n), Th(n,m), Mat_x(m,m), Int_arr(m,n)
 
     call zgemm('T', 'N', m, n, n, alpha, Th, n, Mat, n, beta, Int_arr, m)
-    call zgemm('N', 'N', m, n, n, alpha, Int_arr, m, Th, n, beta, Ax, m)
+    call zgemm('N', 'N', m, m, n, alpha, Int_arr, m, Th, n, beta, Mat_x, m)
 end subroutine
