@@ -1,0 +1,3 @@
+Matrix size = 3x(50x50) = 7500
+Re = 10000
+Created using the uncorrected form of the flux jacobian equations which don't account for the pressure boundary condition.
