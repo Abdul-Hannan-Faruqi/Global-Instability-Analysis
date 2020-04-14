@@ -1,0 +1,3 @@
+Matrix size = 3x(40x40) = 4800
+Re = 10000
+From now on, the corrected flux jacobian equations are used.
