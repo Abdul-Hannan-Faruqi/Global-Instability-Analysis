@@ -5,14 +5,14 @@ module data_mod
     implicit none
     SAVE
     complex*16 :: alpha = (1.0,0.0), beta = (0.0,0.0)
-    integer:: n, m=10
-    complex*16::shift_par
+    integer:: n, m=15
+    complex*16::shift_par=0.0
 end module
 
 Program Eigenvalue
 USE data_mod
 implicit none
-integer::i, j, K, ok, row, col, iter, ierr, ierr2
+integer::i, j, K, ok, row, col, iter, ierr, ierr2, sh_switch= 0, d1, d2, d3
 character(len=50):: e_str, filename, e_str2
 complex*16, dimension(:,:), allocatable:: A, B, Th, evec, Ax, Bx, C, Phi, Int_arr
 complex*16, dimension(:), allocatable:: eval, WORK1, work2, eigs, tau
@@ -20,18 +20,19 @@ double precision, dimension(:), allocatable:: w, w2
 integer, dimension(:), allocatable::IPIV, IPIV2
 integer, dimension(:,:), allocatable::eye
 complex*16 DUMMY(1,1)
-real(8) :: val, tol= 0.00000001, e = 1.0
+real(8) :: val, tol= 0.000001, e = 1.0
 double precision:: Th_norm, zlange
 real::sqrt, start_time, stop_time
+character(len=6):: num
 
-filename = 'M.dat'
-open(unit=100, file=filename, status = 'old', action = 'read', iostat = ierr, iomsg = e_str)
+filename = 'Mn.dat'
+open(unit=10000, file=filename, status = 'old', action = 'read', iostat = ierr, iomsg = e_str)
 if (ierr.eq.0) then
     print *, "File opened successfully"
 else
     print *, "Error!"
 endif
-read(100, *) n
+read(10000, *) n
 print *, n
 
 allocate(A(n,n))
@@ -61,14 +62,14 @@ do i=1,n
 end do
 
 do
-    read(100,*, iostat = ierr) row, col, val
+    read(10000,*, iostat = ierr) row, col, val
     if (ierr.ne.0)    exit
     A(row+1,col+1) = val
 enddo
-close(100)
+close(10000)
 print *, "File closed"
 
-open(unit=200, file= "Eigs.dat", status = 'new', action = 'write', iostat = ierr2, iomsg = e_str2)
+open(unit=20000, file= "Eigs.dat", status = 'new', action = 'write', iostat = ierr2, iomsg = e_str2)
 
 do i=1,n
     do j=1, m
@@ -103,10 +104,12 @@ do
     Th = Th/Th_norm
 
 !   QR decomposition
-    call zgeqrf(n, m, Th, n, tau, work1, m*m, ok)
-    call zungqr(n, m, m, Th, n, tau, work1, m*m, ok)
-!   Project A and B onto the subspace spanned by Th
+!    if(mod(iter,5).eq.0) then
+	call zgeqrf(n, m, Th, n, tau, work1, m*m, ok)
+    	call zungqr(n, m, m, Th, n, tau, work1, m*m, ok)
+!    endif
 
+!   Project A and B onto the subspace spanned by Th
 !    call Project(A, Th, Ax)   | Replace subroutine to prevent 
 !    call Project(B, Th, Bx)   | Stack Overflow
     call zgemm('T', 'N', m, n, n, alpha, Th, n, A, n, beta, Int_arr, m)
@@ -130,13 +133,34 @@ do
 
     e = abs(maxval(real(eval)-real(eigs)))
     eigs = eval
-    if (iter.eq.500) then
+    if ((e.lt.0.0001).and.(sh_switch.eq.0)) then
         shift_par = minval(real(eigs))
         A = A - shift_par*eye
+        sh_switch = 1
     end if
-    if ((e.lt.tol).or.(iter.eq.4000)) then
+
+    if (mod(iter,10).eq.0)  then
+        filename="Iterations\Iter000.dat"
+        d3=iter/100
+        d2=(iter-100*d3)/10
+        d1=iter-d2*10-d3*100
+        filename(16:16)=char(d3+48)
+        filename(17:17)=char(d2+48)
+        filename(18:18)=char(d1+48)
+        open(unit=iter, file=filename, status = 'new', action = 'write')
+        write(iter, *) "Error =", e
+        write(iter, *) "Eigenvalues = " 
+        do i=1,m
+            write(iter, *) 1/(eigs(i)+shift_par)
+	enddo
+        close(iter)
+    endif
+
+    if ((e.lt.tol)) then
         exit
     end if
+    print *, "Iterations = ", iter
+    print *, "error = ", e
 end do
 call cpu_time(stop_time)
    
@@ -146,12 +170,12 @@ print *, "Iterations = ", iter
 print *, "error = ", e
 print *, "Shift = ", shift_par
 eigs = eigs + shift_par
-print *, "Eigenvalues = ", eigs
+print *, "Eigenvalues = ", 1/eigs
 
 do i=1,m
-    write(200, *) 1/eigs(i)
+    write(20000, *) 1/eigs(i)
 enddo
-
+close(20000)
 end program
 
 subroutine Project(Mat, Th, Mat_x)

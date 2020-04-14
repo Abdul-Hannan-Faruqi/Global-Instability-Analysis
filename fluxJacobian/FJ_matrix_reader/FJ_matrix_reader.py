@@ -7,7 +7,7 @@ Created on Sat Mar 21 16:54:49 2020
 
 import numpy as np
 
-filename = 'FJ_matrix.csv'
+filename = 'D:\\Hannan\\Final Year Project\\Solver Repository\\Global-Instability-Analysis\\fluxJacobian\\testCases\\LDC_Re10000\\FJ_matrix.csv'
 f = open(filename, 'r')
 
 n = input("Enter size of matrix: ")
@@ -24,4 +24,5 @@ while(s): #while the line read from the file is not empty
     M[u[0]][u[1]] = u[2]
     s = f.readline()
     
+np.save('M.npy', M)
 f.close()
