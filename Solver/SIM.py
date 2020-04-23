@@ -42,8 +42,8 @@ class SIM:
         self.n = n
         self.m = m
         dsum = 0
-        self.a = np.load("Matrices\\M.npy")
-        self.b = np.load("Matrices\\A.npy")
+        self.a = np.load("A.npy")
+        self.b = np.load("B.npy")
 #        Matrix = Mat_Gen(self.n, t)
 #        a = np.array([[1,2,3],[0,4,5],[0,0,1]])
 #        a= 100*np.random.rand(self.n, self.n)
@@ -70,26 +70,26 @@ class SIM:
         iter = 0
         anew = np.zeros((self.m, self.m))
         start_time = time.process_time()
-        while (err > 1e-4):
-#            Th = np.linalg.solve(a,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
-            Th = a@self.R  #for largest eigenvalues
+        while (err > 1e-6):
+            Th = np.linalg.solve(a,self.R) #Solve for Th using A*Th = R  (for smallest eigenvalues)
+#            Th = a@self.R  #for largest eigenvalues
             Th = Th/np.linalg.norm(Th)
             Th, r = np.linalg.qr(Th)
             Ax = Th.T@a@Th
             Bx = Th.T@b@Th
             C = np.linalg.inv(Bx)@Ax
-            y, self.phi = np.linalg.eig(C)       # Calculation of eigenvalues and eigenvectors
+            self.y, self.phi = np.linalg.eig(C)       # Calculation of eigenvalues and eigenvectors
 #            if iter%1 == 0:
 #                self.Plot(iter)               
             self.R = Th@self.phi
             self.R = b@self.R                   #Eigenvector
-            self.y = np.ravel(y)                #Eigenvalues
+#            self.y = np.ravel(y)                #Eigenvalues
             F.write(str(self.y))
             F.write("\n")            
-            err1 = max(abs(a@self.R[:,1])-(self.y[1]*self.R[:,1]))
-            err2 = max(abs(eig-self.y))
-            err = min(err1, err2)
-            if (iter == 100):
+            err = max(abs(eig-self.y))
+            print("Iterations = ", iter)
+            print("error = ", err)
+            if (err<1e-4):
                 a = self.Complex_Shift(a)
             eig = self.y
             iter += 1 

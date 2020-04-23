@@ -1,0 +1,17 @@
+do i=1,m
+     filename="Results\AR00.dat"       
+     d2=i/10
+     d1=i-d2*10
+     filename(11:11)=char(d2+48)
+     filename(12:12)=char(d1+48)
+     open(unit=i, file=filename, status = 'new', action = 'write')
+
+     filename="Results\lR00.dat" 
+     filename(11:11)=char(d2+48)
+     filename(12:12)=char(d1+48)
+     open(unit=20*i, file=filename, status = 'new', action = 'write')
+     do j=1,n
+         write (i,*) AR(j,i) 
+         write (20*i, *) R(j,i)
+     enddo
+enddo
