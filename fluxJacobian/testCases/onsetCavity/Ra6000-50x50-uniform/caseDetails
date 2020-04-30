@@ -1,0 +1,8 @@
+Matrix size = 10000x10000
+
+
+Cells inside the cavity = 50x50 = 2500
+Made using only the cells inside the cavity
+
+
+Flux Jacobian equations not corrected for boundary locations
