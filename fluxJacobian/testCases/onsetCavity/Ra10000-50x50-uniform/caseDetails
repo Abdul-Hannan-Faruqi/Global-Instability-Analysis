@@ -1,0 +1,11 @@
+Matrix size =  10000x10000
+
+
+Cells in cavity region = 50x50 = 2500
+Made using only cells in the cavity
+
+
+Ra = 10000
+
+
+Flux jacobian equations not corrected for boundary conditions
